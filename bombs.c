@@ -5,7 +5,7 @@
 #include "unistd.h"
 #include "time.h"
 
-int bombspercent = 15;
+int bombspercent = 10;
 
 struct State
 {
@@ -158,15 +158,13 @@ void printAllOpen(struct Map *m){
 }
 
 bool win(struct Map *m){
-    bool win = true;
     for(int Row=0; Row < m->Rows; Row++){
         for(int Col=0; Col < m->Cols; Col++){
-            if(!(m->tiles[Row][Col].Bomb && m->tiles[Row][Col].Flag)){
-                win = false;
-            }
+            if((m->tiles[Row][Col].Bomb) && !(m->tiles[Row][Col].Flag)){ return false;}
+            if((m->tiles[Row][Col].Bomb) && !(m->tiles[Row][Col].Flag)){ return false;}
         }
     }
-    return win;
+    return true;
 }
 
 bool input(struct Map *m){
@@ -208,7 +206,7 @@ void clear(){
 }
 
 int main(){
-    ;srand(time(NULL));
+    srand(time(NULL));
     static struct termios oldT, newT;
 
     tcgetattr(STDIN_FILENO, &oldT);
@@ -217,14 +215,17 @@ int main(){
     tcsetattr( STDIN_FILENO, TCSANOW, &newT);
 
     struct Map m; 
-    initMap(&m, 10, 10);
+    initMap(&m, 20, 20);
     clear();
     printMap(&m);
     while(!input(&m)){
         printf("\33[%dA",m.Rows);
         printf("\33[%dA",m.Cols);
         printMap(&m);
-        if(win(&m)){
+        if(win(&m) && !(m.first)){
+            printf("\33[%dA",m.Rows);
+            printf("\33[%dA",m.Cols);
+            printAllOpen(&m);
             printf("You Win!\n");
             tcsetattr( STDIN_FILENO, TCSANOW, &oldT);
             return 0;
